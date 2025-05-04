@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
-set -e
-cd "$(dirname "$0")"
-./gradlew --no-daemon installDist
+#!/bin/bash
+
+# This script is supposed to build your compiler
+make all
