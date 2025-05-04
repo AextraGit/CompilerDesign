@@ -40,11 +40,7 @@ public class Parser {
     }
 
     public ProgramTree parseProgram() {
-        ProgramTree programTree = new ProgramTree(List.of(parseFunction()));
-        if (this.tokenSource.hasMore()) {
-            throw new ParseException("expected end of input but got " + this.tokenSource.peek());
-        }
-        return programTree;
+        return new ProgramTree(List.of(parseFunction()));
     }
 
     private FunctionTree parseFunction() {
@@ -175,10 +171,28 @@ public class Parser {
             }
             case NumberLiteral(String value, int base, Span span) -> {
                 this.tokenSource.consume();
-                yield new LiteralTree(value, base, span);
+                yield new LiteralTree(parseValue(value, base), span);
             }
             case Token t -> throw new ParseException("invalid factor " + t);
         };
+    }
+
+    private static long parseValue(String value, int base) {
+        int begin = 0;
+        int end = value.length();
+        if (base == 16) {
+            begin = 2; // ignore 0x
+        }
+        long l;
+        try {
+            l = Long.parseLong(value, begin, end, base);
+        } catch (NumberFormatException _) {
+            throw new ParseException("invalid int literal " + value);
+        }
+        if (l < 0 || l > Integer.toUnsignedLong(Integer.MIN_VALUE)) {
+            throw new ParseException("invalid int literal " + value);
+        }
+        return l;
     }
 
     private static NameTree name(Identifier ident) {
