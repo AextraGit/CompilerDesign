@@ -22,7 +22,7 @@ dependencies {
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(24)
+    toolchain.languageVersion = JavaLanguageVersion.of(22)
 }
 
 tasks.test {
