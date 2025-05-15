@@ -76,11 +76,7 @@ public class CodeGenerator {
                                     .append(", %rax \n")
                                     .append("ret");*/
                
-            case ConstIntNode c -> builder.append("movq ")
-                .append("$")
-                .append(c.value())
-                .append(", ")
-                .append(registers.get(c));
+            case ConstIntNode c -> assignConstant(builder, registers, c);
             case Phi _ -> throw new UnsupportedOperationException("phi");
             case Block _, ProjNode _, StartNode _ -> {
                 // do nothing, skip line break
@@ -88,6 +84,15 @@ public class CodeGenerator {
             }
         }
         builder.append("\n");
+    }
+
+    private void assignConstant(StringBuilder builder, Map<Node, Register> registers, ConstIntNode node){
+        builder.append("movq ")
+                .append("$")
+                .append(node.value())
+                .append(", ")
+                .append(registers.get(node));
+        moveToRax(builder, registers, node);
     }
 
     private void ret(StringBuilder builder, Map<Node, Register> registers, ReturnNode r, String opcode){
