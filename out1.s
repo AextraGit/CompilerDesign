@@ -9,8 +9,10 @@ movq $0x3C, %rax
 syscall
 
 _main: 
-movq $10, %rcx
-movq $5, %rdx
-subq %rdx, %rcx
-movq %rsi, %rax 
+movq $10, %rbx
+movq $3, %rcx
+movq %rbx , %rax
+cqo
+idiv %rcx
+ movq %rdx, %rax
 ret

@@ -68,12 +68,13 @@ public class CodeGenerator {
             case AddNode add -> betaBinary(builder, registers, add, "addq");
             case SubNode sub -> betaBinary(builder, registers, sub, "subq");
             case MulNode mul -> betaBinary(builder, registers, mul, "imulq");
-            case DivNode div -> betaBinary(builder, registers, div, "idiv");
-            case ModNode mod -> betaBinary(builder, registers, mod, "MOD TODO");
-            case ReturnNode r -> builder.append("movq ")
+            case DivNode div -> divide(builder, registers, div, "rax");
+            case ModNode mod -> divide(builder, registers, mod, "rdx");
+            case ReturnNode r -> builder.append("ret");
+                                   /* .append("movq ")
                                     .append(registers.get(predecessorSkipProj(r, ReturnNode.RESULT)))
                                     .append(", %rax \n")
-                                    .append("ret");
+                                    .append("ret");*/
                
             case ConstIntNode c -> builder.append("movq ")
                 .append("$")
@@ -87,6 +88,21 @@ public class CodeGenerator {
             }
         }
         builder.append("\n");
+    }
+
+    private void divide(StringBuilder builder, Map<Node, Register> registers, BinaryOperationNode node, String registerToRead){
+        builder.append("movq ")                                                             //mov dividend (the upper one) to %rax
+            .append(registers.get(predecessorSkipProj(node, BinaryOperationNode.LEFT)))
+            .append(" , %rax\n")
+            .append("cqo\n")                                                                //cqo for sign
+            .append("idiv ")
+            .append(registers.get(predecessorSkipProj(node, BinaryOperationNode.RIGHT)));   //actual division
+           /* .append("\n")
+            .append("movq ")
+            .append(registerToRead)
+            .append(", ")
+            .append(registers.get(prede));   */
+        if(registerToRead.equals("rdx")) builder.append("\n movq %rdx, %rax");
     }
 
     private void betaBinary(StringBuilder builder, Map<Node, Register> registers, BinaryOperationNode node, String opcode){
