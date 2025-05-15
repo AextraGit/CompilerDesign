@@ -70,7 +70,7 @@ public class CodeGenerator {
             case MulNode mul -> betaBinary(builder, registers, mul, "imulq");
             case DivNode div -> divide(builder, registers, div, "rax");
             case ModNode mod -> divide(builder, registers, mod, "rdx");
-            case ReturnNode r -> builder.append("ret");
+            case ReturnNode r -> ret(builder, registers, r, "ret");
                                    /* .append("movq ")
                                     .append(registers.get(predecessorSkipProj(r, ReturnNode.RESULT)))
                                     .append(", %rax \n")
@@ -90,6 +90,11 @@ public class CodeGenerator {
         builder.append("\n");
     }
 
+    private void ret(StringBuilder builder, Map<Node, Register> registers, ReturnNode r, String opcode){
+        builder.append(opcode);
+        System.err.println("fucking ret " + registers.get(predecessorSkipProj(r, ReturnNode.RESULT)));
+    }
+
     private void divide(StringBuilder builder, Map<Node, Register> registers, BinaryOperationNode node, String registerToRead){
         builder.append("movq ")                                                             //mov dividend (the upper one) to %rax
             .append(registers.get(predecessorSkipProj(node, BinaryOperationNode.LEFT)))
@@ -102,7 +107,8 @@ public class CodeGenerator {
             .append(registerToRead)
             .append(", ")
             .append(registers.get(prede));   */
-        if(registerToRead.equals("rdx")) builder.append("\n movq %rdx, %rax");
+        if(registerToRead.equals("rdx")) builder.append("\nmovq %rdx, %rax");
+        System.err.println("divide " + registers.get(predecessorSkipProj(node, ReturnNode.RESULT)));
     }
 
     private void betaBinary(StringBuilder builder, Map<Node, Register> registers, BinaryOperationNode node, String opcode){
@@ -110,6 +116,14 @@ public class CodeGenerator {
             .append(" ")
             .append(registers.get(predecessorSkipProj(node, BinaryOperationNode.RIGHT)))
             .append(", ")
-            .append(registers.get(predecessorSkipProj(node, BinaryOperationNode.LEFT)));
+            .append(registers.get(predecessorSkipProj(node, BinaryOperationNode.LEFT)))
+            .append("\n");
+        moveToRax(builder, registers, node);
+    }
+
+    private void moveToRax(StringBuilder builder, Map<Node, Register> registers, Node node){
+        builder.append("movq ")
+            .append(registers.get(predecessorSkipProj(node, BinaryOperationNode.LEFT)))     //looks like the result is stored in the left binop node NOT in the RESULT node wtf
+            .append(", %rax");
     }
 }
