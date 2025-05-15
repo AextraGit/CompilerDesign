@@ -92,7 +92,7 @@ public class CodeGenerator {
 
     private void ret(StringBuilder builder, Map<Node, Register> registers, ReturnNode r, String opcode){
         builder.append(opcode);
-        System.err.println("fucking ret " + registers.get(predecessorSkipProj(r, ReturnNode.RESULT)));
+        //System.err.println("fucking ret " + registers.get(predecessorSkipProj(r, ReturnNode.RESULT)));
     }
 
     private void divide(StringBuilder builder, Map<Node, Register> registers, BinaryOperationNode node, String registerToRead){
@@ -108,7 +108,7 @@ public class CodeGenerator {
             .append(", ")
             .append(registers.get(prede));   */
         if(registerToRead.equals("rdx")) builder.append("\nmovq %rdx, %rax");
-        System.err.println("divide " + registers.get(predecessorSkipProj(node, ReturnNode.RESULT)));
+        //System.err.println("divide " + registers.get(predecessorSkipProj(node, ReturnNode.RESULT)));
     }
 
     private void betaBinary(StringBuilder builder, Map<Node, Register> registers, BinaryOperationNode node, String opcode){
