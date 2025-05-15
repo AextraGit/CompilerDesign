@@ -91,8 +91,9 @@ public class CodeGenerator {
                 .append("$")
                 .append(node.value())
                 .append(", ")
-                .append(registers.get(node));
-        moveToRax(builder, registers, node);
+                .append(registers.get(node))
+                .append("\n");
+        moveToRax(builder, registers.get(node));
     }
 
     private void ret(StringBuilder builder, Map<Node, Register> registers, ReturnNode r, String opcode){
@@ -117,18 +118,19 @@ public class CodeGenerator {
     }
 
     private void betaBinary(StringBuilder builder, Map<Node, Register> registers, BinaryOperationNode node, String opcode){
+        Register finalRegister = registers.get(predecessorSkipProj(node, BinaryOperationNode.LEFT));
         builder.append(opcode)
             .append(" ")
             .append(registers.get(predecessorSkipProj(node, BinaryOperationNode.RIGHT)))
             .append(", ")
-            .append(registers.get(predecessorSkipProj(node, BinaryOperationNode.LEFT)))
+            .append(finalRegister)
             .append("\n");
-        moveToRax(builder, registers, node);
+        moveToRax(builder, finalRegister);
     }
 
-    private void moveToRax(StringBuilder builder, Map<Node, Register> registers, Node node){
+    private void moveToRax(StringBuilder builder, Register node){
         builder.append("movq ")
-            .append(registers.get(predecessorSkipProj(node, BinaryOperationNode.LEFT)))     //looks like the result is stored in the left binop node NOT in the RESULT node wtf
+            .append(node)     //looks like the result is stored in the left binop node NOT in the RESULT node wtf
             .append(", %rax");
     }
 }
