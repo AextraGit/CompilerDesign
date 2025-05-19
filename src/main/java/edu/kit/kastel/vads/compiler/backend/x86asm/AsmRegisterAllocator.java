@@ -47,7 +47,6 @@ public class AsmRegisterAllocator implements RegisterAllocator {
         }
 
         registers.put(node, new PhysicalRegister(id++));
-        System.out.println(id);
     }
 
     private static boolean needsRegister(Node node) {
