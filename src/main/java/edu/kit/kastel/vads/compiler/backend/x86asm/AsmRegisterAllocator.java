@@ -8,13 +8,12 @@ import java.util.Set;
 import edu.kit.kastel.vads.compiler.backend.regalloc.Register;
 import edu.kit.kastel.vads.compiler.backend.regalloc.RegisterAllocator;
 import edu.kit.kastel.vads.compiler.ir.IrGraph;
-import edu.kit.kastel.vads.compiler.ir.node.BinaryOperationNode;
 import edu.kit.kastel.vads.compiler.ir.node.Block;
+import edu.kit.kastel.vads.compiler.ir.node.ConstIntNode;
 import edu.kit.kastel.vads.compiler.ir.node.Node;
 import edu.kit.kastel.vads.compiler.ir.node.ProjNode;
 import edu.kit.kastel.vads.compiler.ir.node.ReturnNode;
 import edu.kit.kastel.vads.compiler.ir.node.StartNode;
-import static edu.kit.kastel.vads.compiler.ir.util.NodeSupport.predecessorSkipProj;
 
 public class AsmRegisterAllocator implements RegisterAllocator {
     private int id;
@@ -34,18 +33,25 @@ public class AsmRegisterAllocator implements RegisterAllocator {
                 scan(predecessor, visited);
             }
         }
-        if (needsRegister(node) && !registers.containsKey(node)) {
-    // Reuse left predecessor register if possible
-            if (node instanceof BinaryOperationNode binOp) {
-                Node left = predecessorSkipProj(binOp, BinaryOperationNode.LEFT);
-                Register reuse = registers.get(left);
-                if (reuse != null) {
-                    this.registers.put(node, reuse);  // Reuse register!
+        if (!needsRegister(node))
+            return;
+
+        if (node instanceof ConstIntNode constNode) {
+            for (Map.Entry<Node, Register> entry : registers.entrySet()) {
+                if (entry.getKey() instanceof ConstIntNode other &&
+                    other.value() == constNode.value()) {
+                    registers.put(node, entry.getValue());
                     return;
                 }
-            }   
-            this.registers.put(node, new PhysicalRegister(id++));
+            }
         }
+
+        registers.put(node, new PhysicalRegister(computeId(id)));
+    }
+
+    private int computeId(int lastId){
+        lastId = (lastId + 1) % 12;
+        return lastId;
     }
 
     private static boolean needsRegister(Node node) {

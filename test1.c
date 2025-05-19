@@ -1,5 +1,4 @@
-int main () {
-    int a = 10;
-    int b = 3;
-    return a % b;
+int main() {
+  int i = 1;
+  return i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i;
 }

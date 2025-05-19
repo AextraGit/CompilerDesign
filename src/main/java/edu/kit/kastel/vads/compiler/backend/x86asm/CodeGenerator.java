@@ -125,27 +125,27 @@ public class CodeGenerator {
 
 
     private void betaBinary(StringBuilder builder, Map<Node, Register> registers, BinaryOperationNode node, String opcode) {
-    Register left = registers.get(predecessorSkipProj(node, BinaryOperationNode.LEFT));
-    Register right = registers.get(predecessorSkipProj(node, BinaryOperationNode.RIGHT));
-    Register target = registers.get(node);
+        Register left = registers.get(predecessorSkipProj(node, BinaryOperationNode.LEFT));
+        Register right = registers.get(predecessorSkipProj(node, BinaryOperationNode.RIGHT));
+        Register target = registers.get(node);
 
-    // mov left, target
-    builder.append("movq ")
-        .append(left)
-        .append(", ")
-        .append(target)
-        .append("\n");
+        if (!target.equals(left)) {
+            builder.append("movq ")
+            .append(left)
+            .append(", ")
+            .append(target)
+            .append("\n");
+        }
 
-    // add right, target
-    builder.append(opcode)
-        .append(" ")
-        .append(right)
-        .append(", ")
-        .append(target)
-        .append("\n");
+        builder.append(opcode)
+            .append(" ")
+            .append(right)
+            .append(", ")
+            .append(target)
+            .append("\n");
 
-    moveToRax(builder, target);
-}
+        moveToRax(builder, target); 
+    }
 
     private void moveToRax(StringBuilder builder, Register node){
         builder.append("movq ")
