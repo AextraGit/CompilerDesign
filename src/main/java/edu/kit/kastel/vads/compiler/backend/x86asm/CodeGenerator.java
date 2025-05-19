@@ -72,7 +72,7 @@ public class CodeGenerator {
             case ModNode mod -> divide(builder, registers, mod, "rdx");
             case ReturnNode r -> ret(builder, registers, r, "ret");               
             case ConstIntNode c -> assignConstant(builder, registers, c);
-            case Phi _ -> throw new UnsupportedOperationException("phi");
+            case Phi _ -> System.exit(7);
             case Block _, ProjNode _, StartNode _ -> {
                 // do nothing, skip line break
                 return;
