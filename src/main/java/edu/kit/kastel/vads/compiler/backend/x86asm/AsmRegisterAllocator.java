@@ -46,12 +46,8 @@ public class AsmRegisterAllocator implements RegisterAllocator {
             }
         }
 
-        registers.put(node, new PhysicalRegister(computeId(id)));
-    }
-
-    private int computeId(int lastId){
-        lastId = (lastId + 1) % 12;
-        return lastId;
+        registers.put(node, new PhysicalRegister(id++));
+        System.out.println(id);
     }
 
     private static boolean needsRegister(Node node) {
