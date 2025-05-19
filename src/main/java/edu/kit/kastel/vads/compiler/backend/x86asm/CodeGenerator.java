@@ -70,12 +70,7 @@ public class CodeGenerator {
             case MulNode mul -> betaBinary(builder, registers, mul, "imulq");
             case DivNode div -> divide(builder, registers, div, "rax");
             case ModNode mod -> divide(builder, registers, mod, "rdx");
-            case ReturnNode r -> ret(builder, registers, r, "ret");
-                                   /* .append("movq ")
-                                    .append(registers.get(predecessorSkipProj(r, ReturnNode.RESULT)))
-                                    .append(", %rax \n")
-                                    .append("ret");*/
-               
+            case ReturnNode r -> ret(builder, registers, r, "ret");               
             case ConstIntNode c -> assignConstant(builder, registers, c);
             case Phi _ -> throw new UnsupportedOperationException("phi");
             case Block _, ProjNode _, StartNode _ -> {
@@ -117,7 +112,7 @@ public class CodeGenerator {
         //System.err.println("divide " + registers.get(predecessorSkipProj(node, ReturnNode.RESULT)));
     }
 
-    private void betaBinary(StringBuilder builder, Map<Node, Register> registers, BinaryOperationNode node, String opcode){
+    private void betaBinary1(StringBuilder builder, Map<Node, Register> registers, BinaryOperationNode node, String opcode){
         Register finalRegister = registers.get(predecessorSkipProj(node, BinaryOperationNode.LEFT));
         builder.append(opcode)
             .append(" ")
@@ -127,6 +122,30 @@ public class CodeGenerator {
             .append("\n");
         moveToRax(builder, finalRegister);
     }
+
+
+    private void betaBinary(StringBuilder builder, Map<Node, Register> registers, BinaryOperationNode node, String opcode) {
+    Register left = registers.get(predecessorSkipProj(node, BinaryOperationNode.LEFT));
+    Register right = registers.get(predecessorSkipProj(node, BinaryOperationNode.RIGHT));
+    Register target = registers.get(node);
+
+    // mov left, target
+    builder.append("movq ")
+        .append(left)
+        .append(", ")
+        .append(target)
+        .append("\n");
+
+    // add right, target
+    builder.append(opcode)
+        .append(" ")
+        .append(right)
+        .append(", ")
+        .append(target)
+        .append("\n");
+
+    moveToRax(builder, target);
+}
 
     private void moveToRax(StringBuilder builder, Register node){
         builder.append("movq ")

@@ -8,11 +8,13 @@ import java.util.Set;
 import edu.kit.kastel.vads.compiler.backend.regalloc.Register;
 import edu.kit.kastel.vads.compiler.backend.regalloc.RegisterAllocator;
 import edu.kit.kastel.vads.compiler.ir.IrGraph;
+import edu.kit.kastel.vads.compiler.ir.node.BinaryOperationNode;
 import edu.kit.kastel.vads.compiler.ir.node.Block;
 import edu.kit.kastel.vads.compiler.ir.node.Node;
 import edu.kit.kastel.vads.compiler.ir.node.ProjNode;
 import edu.kit.kastel.vads.compiler.ir.node.ReturnNode;
 import edu.kit.kastel.vads.compiler.ir.node.StartNode;
+import static edu.kit.kastel.vads.compiler.ir.util.NodeSupport.predecessorSkipProj;
 
 public class AsmRegisterAllocator implements RegisterAllocator {
     private int id;
@@ -33,6 +35,15 @@ public class AsmRegisterAllocator implements RegisterAllocator {
             }
         }
         if (needsRegister(node) && !registers.containsKey(node)) {
+    // Reuse left predecessor register if possible
+            if (node instanceof BinaryOperationNode binOp) {
+                Node left = predecessorSkipProj(binOp, BinaryOperationNode.LEFT);
+                Register reuse = registers.get(left);
+                if (reuse != null) {
+                    this.registers.put(node, reuse);  // Reuse register!
+                    return;
+                }
+            }   
             this.registers.put(node, new PhysicalRegister(id++));
         }
     }
