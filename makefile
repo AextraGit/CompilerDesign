@@ -15,5 +15,7 @@ run: out1
 	-./out1
 	echo "Exit Code: $$?"
 
+build: ./build.sh
+
 clean:
 	rm -f out1.o out1

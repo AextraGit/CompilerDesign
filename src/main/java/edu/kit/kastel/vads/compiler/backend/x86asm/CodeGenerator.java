@@ -1,5 +1,6 @@
 package edu.kit.kastel.vads.compiler.backend.x86asm;
 
+import java.io.BufferedOutputStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
